@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pixel Art</title>
+        <style>
+            body {
+                background-color: white;
+            }
+            #canvasContainer {
+                height: 750px;
+                width: 750px;
+                background-color: black;
+                
+            }
+            #canvas {
+                height: 750px;
+                width: 750px;
+                display: grid;
+                gap: 1px;
+                background-color: gray;
+            }
+
+            #controls {
+                background-color: white;
+            }
+
+            .square {
+                padding: 0px;
+                background-color: black;
+                margin: 0;
+                border: 0px solid black;
+                aspect-ratio: 1/1;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id = "menu">
+            <label for="height">Height (between 1 and 250):</label>
+            <input type="number" id="height" name="height" min="1" max="250" step = "1">
+            <br>
+
+            <label for="height">Width (between 1 and 250):</label>
+            <input type="number" id="width" name="width" min="1" max="250" step = "1">
+            <br>
+            
+            <label for = "bgColor">Background Color</label>
+            <input type="color" id="bgColor" name="bgColor" value="#ffffff">
+            <br>
+
+            <button onclick="buildGrid()">Go!</button>
+        </div>
+        <div id = "main" style = "display: none;">
+            <div id = "controls">
+                <label for = "bgColor">Pencil Color</label>
+                <input type="color" id="pencilColor" name="pencilColor" value="#000000">
+                <br>
+
+                <label for = "bgColor">Background Color</label>
+                <input type="color" id="bgColor" name="bgColor" value="#ffffff">
+                <br>                
+                <button onclick="reset()">Reset</button>
+            </div>
+            <div id = "canvasContainer" >
+            
+                <div id = "canvas">
+    
+                </div>
+            </div>
+            
+        </div>
+       
+
+        <script>
+            heightNum = document.getElementById("height").value = 100;
+            widthNum = document.getElementById("width").value = 100;
+
+            function buildGrid(){
+                document.getElementById("menu").style.display = "none";
+                document.getElementById("main").style.display = "block";
+
+                var heightNum = document.getElementById("height").value;
+                var widthNum = document.getElementById("width").value;
+                pixelSize = (750 - heightNum)/heightNum;
+
+                if(heightNum == widthNum){
+                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + heightNum + ", " + pixelSize + "px)";
+                    document.getElementById("canvas").style.gridAutoRows = pixelSize + "px";
+                } else if (heightNum > widthNum){
+                    pixelSize = (750 - widthNum)/widthNum;
+                    var ratio = widthNum/heightNum;
+                    console.log(ratio*750);
+                    document.getElementById("canvas").style.height = 750;
+                    document.getElementById("canvas").style.width = 750*ratio;
+
+                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + heightNum + ", " + pixelSize + "px)";
+                    document.getElementById("canvas").style.gridAutoRows = pixelSize + "px";
+                } else {
+                    var ratio = heightNum/widthNum;
+                    console.log(ratio);
+                    document.getElementById("canvas").style.width = 750;
+                    document.getElementById("canvas").style.height = 750*ratio;
+
+                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + heightNum + ", " + pixelSize + "px)";
+                    document.getElementById("canvas").style.gridAutoRows = pixelSize + "px";
+                }
+                
+                var pixelTotal = heightNum*widthNum;
+
+                let elements = document.getElementsByClassName("square");
+                for(var i = 0; i < pixelTotal; i++){
+                    const button = document.createElement("button");
+                    button.className = "square";
+                    button.style.height = pixelSize + "px";
+                    button.style.width = pixelSize + "px";
+                    document.getElementById("canvas").appendChild(button);
+                }
+            }
+            
+            function reset(){
+                document.getElementById("menu").style.display = "block";
+                document.getElementById("main").style.display = "none";
+                
+                let elements = document.getElementsByClassName("square");
+                console.log(elements.length);
+                while(elements.length > 0){
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+            }
+        </script>
+
+    </body>
+</html>
