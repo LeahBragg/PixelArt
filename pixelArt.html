@@ -6,18 +6,20 @@
             body {
                 background-color: white;
             }
+
             #canvasContainer {
                 height: 750px;
                 width: 750px;
                 background-color: black;
-                
+                padding: 10px;
+                overflow: auto;
             }
+
             #canvas {
                 height: 750px;
-                width: 750px;
+                width: 750px;;
                 display: grid;
                 gap: 1px;
-                background-color: gray;
             }
 
             #controls {
@@ -26,7 +28,6 @@
 
             .square {
                 padding: 0px;
-                background-color: black;
                 margin: 0;
                 border: 0px solid black;
                 aspect-ratio: 1/1;
@@ -45,7 +46,7 @@
             <br>
             
             <label for = "bgColor">Background Color</label>
-            <input type="color" id="bgColor" name="bgColor" value="#ffffff">
+            <input type="color" id="bgColor" name="bgColor" value="#ff0000">
             <br>
 
             <button onclick="buildGrid()">Go!</button>
@@ -57,7 +58,7 @@
                 <br>
 
                 <label for = "bgColor">Background Color</label>
-                <input type="color" id="bgColor" name="bgColor" value="#ffffff">
+                <input type="color" id="bgColor2" name="bgColor" value="#ff0000">
                 <br>                
                 <button onclick="reset()">Reset</button>
             </div>
@@ -81,38 +82,41 @@
 
                 var heightNum = document.getElementById("height").value;
                 var widthNum = document.getElementById("width").value;
-                pixelSize = (750 - heightNum)/heightNum;
+                var pixelSize = 10;
 
                 if(heightNum == widthNum){
-                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + heightNum + ", " + pixelSize + "px)";
+                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + widthNum + ", " + pixelSize + "px)";
                     document.getElementById("canvas").style.gridAutoRows = pixelSize + "px";
+                
                 } else if (heightNum > widthNum){
-                    pixelSize = (750 - widthNum)/widthNum;
                     var ratio = widthNum/heightNum;
-                    console.log(ratio*750);
-                    document.getElementById("canvas").style.height = 750;
-                    document.getElementById("canvas").style.width = 750*ratio;
+                    document.getElementById("canvas").style.height = "750px";
+                    document.getElementById("canvas").style.width = 750*ratio + "px";
 
-                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + heightNum + ", " + pixelSize + "px)";
+                    pixelSize = Math.floor((750*ratio - widthNum)/widthNum);
+                    console.log(pixelSize);
+                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + widthNum + ", " + pixelSize + "px)";
                     document.getElementById("canvas").style.gridAutoRows = pixelSize + "px";
+                
                 } else {
                     var ratio = heightNum/widthNum;
                     console.log(ratio);
-                    document.getElementById("canvas").style.width = 750;
-                    document.getElementById("canvas").style.height = 750*ratio;
+                    document.getElementById("canvas").style.width = "750px";
+                    document.getElementById("canvas").style.height = 750*ratio + "px";
 
-                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + heightNum + ", " + pixelSize + "px)";
+                    pixelSize = Math.floor((750*ratio - heightNum)/heightNum);
+                    document.getElementById("canvas").style.gridTemplateColumns = "repeat(" + widthNum + ", " + pixelSize + "px)";
                     document.getElementById("canvas").style.gridAutoRows = pixelSize + "px";
                 }
                 
                 var pixelTotal = heightNum*widthNum;
 
-                let elements = document.getElementsByClassName("square");
                 for(var i = 0; i < pixelTotal; i++){
                     const button = document.createElement("button");
                     button.className = "square";
                     button.style.height = pixelSize + "px";
                     button.style.width = pixelSize + "px";
+                    button.style.backgroundColor = document.getElementById("bgColor").value;
                     document.getElementById("canvas").appendChild(button);
                 }
             }
