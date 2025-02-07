@@ -33,28 +33,29 @@
         <div id = "main" style = "display: none;">
             <div id = "controls">
                 <label for = "pencilColor">Pencil Color</label>
-                <input type="color" id="pencilColor" name="pencilColor" value="#FF00FF">
+                <input type="color" id="pencilColor" name="pencilColor" value="#FF00FF" onchange="handlePencil()">
                 <br>
 
                 <label for = "backgroundColor">Background Color</label>
-                <input type="color" id="backgroundColor" name="backgroundColor" value="#A3A3A3">
+                <input type="color" id="backgroundColor" name="backgroundColor" value="#EEEEEE" onchange="handleBackground()">
                 <br>
-                <button onclick="fitToBox()">Fit</button>
+                <button onclick="fit()">Fit</button>
                 <button onclick="clearCanvas()">Clear</button>
                 <button onclick="reset()">Reset</button>
+                <button onclick="download()">Download</button>
                 
                 <br>
-                <input type="radio" id="Pencil" name="tool" value="Pencil" onclick="selectTool(0)">
+                <input type="radio" id="Pencil" name="tool" value="Pencil" onclick="selectTool('pencil')">
                 <label for="Pencil">Pencil</label>
                 <br>
-                <input type="radio" id="Eraser" name="tool" value="Eraser" onclick="selectTool(1)">
+                <input type="radio" id="Eraser" name="tool" value="Eraser" onclick="selectTool('erase')">
                 <label for="Eraser">Eraser</label>
                 <br>
-                <input type="radio" id="Pan" name="tool" value="Pan" onclick="selectTool(2)">
-                <label for="Pan">Pan</label>
+                <input type="radio" id="Fill" name="tool" value="Fill" onclick="selectTool('fill')">
+                <label for="Fill">Fill</label>
                 <br>
-                <input type="radio" id="Zoom" name="tool" value="Zoom" onclick="selectTool(3)">
-                <label for="Zoom">Zoom</label>
+                <input type="radio" id="Pan" name="tool" value="Pan" onclick="selectTool('pan')">
+                <label for="Pan">Pan</label>
                 <br>
                 
                 
@@ -63,74 +64,79 @@
             <canvas id = "canvas" width="750" height="750"></canvas>
         </div>
        
-
         <script>
-            var heightNum = document.getElementById("height").value = 50;
-            var widthNum = document.getElementById("width").value = 50;
+            //variables
+            var heightNum = document.getElementById("height").value = 5;
+            var widthNum = document.getElementById("width").value = 5;
             var pixelSize = 750/Math.max(heightNum, widthNum);
             var pixels = []
 
-            var tools = [false, false, false, false]
-            var pencil = 0;
-            var eraser = 1;
-            var pan = 2;
-            var zoom = 3;
+            function Pixel(x, y, color, empty){
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.empty = empty
+            }
+
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext('2d');
 
             var backgroundColor = document.getElementById("backgroundColor").value;
             var pencilColor = document.getElementById("pencilColor").value;
 
-            //NOT WORKING
-            document.getElementById("backgroundColor").addEventListener("input", function(e){
-                backgroundColor = this.value;
+            function handleBackground(){
+                backgroundColor = document.getElementById("backgroundColor").value;
                 render();
-            });
-            document.getElementById("pencilColor").addEventListener("input", function(e){
-                pencilColor = this.value;
-            });
+            }
+            function handlePencil(){
+                pencilColor = document.getElementById("pencilColor").value;
+            }
 
-            //TODO: chnage this to swap out event listeners 
-            //allow zoom all the time
-            //give pan space bar shortcut
-            //implement fill tool
-            //implement save
+            //TODO:
+            //implement fill tool - recursive
             //implement warning message for reset and clear
+            //implement undo redo
+            var mouseDownArr = []
+            var mouseUpArr = []
             function selectTool(tool){
-                for(var i = 0; i < tools.length; i++){
-                    if(i == tool){
-                        tools[i] = true;
-                        console.log(tool)
-                    } else {
-                        tools[i] = false;
-                    }
+                //remove previous event listeners
+                emptyListeners(canvas, "mousedown", mouseDownArr);
+                emptyListeners(canvas, "mouseup", mouseUpArr);
+                mouseDownArr = []
+                mouseUpArr = []
+                
+                //add correct event listeners
+                if(tool == "pencil"){
+                    canvas.addEventListener("mousedown", handleDrawStart);
+                    canvas.addEventListener("mouseup", handleDrawEnd);
+                    mouseDownArr.push(handleDrawStart);
+                    mouseUpArr.push(handleDrawEnd);
+
+                } else if (tool == "erase"){
+                    canvas.addEventListener("mousedown", handleEraseStart);
+                    canvas.addEventListener("mouseup", handleEraseEnd);
+                    mouseDownArr.push(handleEraseStart);
+                    mouseUpArr.push(handleEraseEnd);
+
+                } else if (tool == "fill"){
+                    canvas.addEventListener("mousedown", handleFillStart);
+                    canvas.addEventListener("mouseup", handleFillEnd);
+                    mouseDownArr.push(handleFillStart);
+                    mouseUpArr.push(handleFillEnd);
+
+                } else if (tool == "pan"){
+                    canvas.addEventListener("mousedown", handlePanStart)
+                    canvas.addEventListener("mouseup", handlePanEnd)
+                    mouseDownArr.push(handlePanStart);
+                    mouseUpArr.push(handlePanEnd);
+
                 }
             }
-            
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext('2d');
-            
-            //event listeners for drawing
-            canvas.addEventListener("mousedown", (e) => {
-                draw(e);
-                canvas.addEventListener("mousemove", draw);
-            });
 
-            canvas.addEventListener("mouseup", (e) => {
-                canvas.removeEventListener("mousemove", draw);
-            })
-                //touch doesn't no fully work
-            canvas.addEventListener("touchstart", (e) => {
-                pencil(e);
-                canvas.addEventListener("touchmove", pencil);
-            });
-
-            canvas.addEventListener("touchend", (e) => {
-                canvas.removeEventListener("touchmove", pencil);
-            })
-        
-            function Pixel(x, y, color){
-                this.x = x;
-                this.y = y;
-                this.color = color;
+            function emptyListeners(object, type, arr){
+                for(var i = 0; i < arr.length; i++){
+                    object.removeEventListener(type, arr[i]);
+                }
             }
 
             const viewportTransform = {
@@ -139,26 +145,29 @@
                 scale: 1
             }
 
-            const drawPixel = (pixel) => {
-                ctx.fillStyle = pixel.color
-                ctx.clearRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
-                ctx.fillRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
-            }
+            canvas.addEventListener("mousemove", (e) => {
+                currentX = e.clientX;
+                currentY = e.clientY;
+            })
 
             let previousX = 0;
             let previousY = 0;
-            const updatePanning = (e) => {
+            let currentX = 0;
+            let currentY = 0;
+            //transformation updates
+            function updatePanning(e){
                 const localX = e.clientX;
                 const localY = e.clientY;
 
+                //console.log(previousX, previousY, localX, localY)
                 viewportTransform.x += localX - previousX;
                 viewportTransform.y += localY - previousY;
-
+                
                 previousX = localX;
                 previousY = localY;
             }
-
-            const updateZooming = (e) => {
+            function updateZooming(e){
+                
                 const oldScale = viewportTransform.scale;
                 const oldX = viewportTransform.x;
                 const oldY = viewportTransform.y;
@@ -168,7 +177,11 @@
 
                 const previousScale = viewportTransform.scale;
 
-                const newScale = viewportTransform.scale += e.deltaY * -0.01;
+                var deltaY = e.deltaY;
+                if(e.deltaY >= 100){
+                    deltaY = 99
+                }
+                const newScale = viewportTransform.scale += deltaY * -0.01;
 
                 const newX = localX - (localX - oldX) * (newScale/previousScale);
                 const newY = localY - (localY - oldY) * (newScale/previousScale);
@@ -178,80 +191,168 @@
                 viewportTransform.scale = newScale;
             }
 
-            const onMouseMove = (e) => {
-                if(tools[pan]){
-                    updatePanning(e);
-                    render();
-                    console.log(e);
+            //event listeners for Zoom and Pan
+            function onMouseMove(e){
+                updatePanning(e);
+                render();
+                console.log(e);
+            }
+            
+            document.addEventListener("keydown", (e) => {
+                if(e.code == 'Space'){
+                    previousX = currentX;
+                    previousY = currentY
+                    canvas.addEventListener("mousemove", onMouseMove);
                 }
+            })
+            document.addEventListener("keyup", (e) => {
+                if(e.code == 'Space'){
+                    canvas.removeEventListener("mousemove", onMouseMove);
+                }
+            })
+
+            function onMouseWheel(e){
+                e.preventDefault()
+                updateZooming(e)
+                render()
+                console.log(e)
+            }
+            canvas.addEventListener("wheel", onMouseWheel, {passive: false});
+            
+            //event handlers for draw, erase, pan
+            function handleDrawStart(e){
+                draw(e);
+                canvas.addEventListener("mousemove", draw);
+            }
+            function handleDrawEnd(e){
+                canvas.removeEventListener("mousemove", draw);
+            }
+            function handleEraseStart(e){
+                erase(e);
+                canvas.addEventListener("mousemove", erase);
+            }
+            function handleEraseEnd(e){
+                canvas.removeEventListener("mousemove", erase);
+            }
+            function handleFillStart(e){
+                fill(e);
+                canvas.addEventListener("mousemove", fill);
+            }
+            function handleFillEnd(e){
+                canvas.removeEventListener("mousemove", fill);
+            }
+            function handlePanStart(e){
+                previousX = e.clientX;
+                previousY = e.clientY;
+                canvas.addEventListener("mousemove", onMouseMove);
+            }
+            function handlePanEnd(e){
+                canvas.removeEventListener("mousemove", onMouseMove);
             }
 
-            const onMouseWheel = (e) => {
-                if(tools[zoom]){
-                    e.preventDefault()
-                    updateZooming(e)
-                    render()
-                    console.log(e)
+            //rendering pixels
+            function drawPixel(pixel) {
+                if(pixel.empty){
+                    ctx.fillStyle = backgroundColor
+                } else {
+                    ctx.fillStyle = pixel.color
                 }
+                ctx.clearRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
+                ctx.fillRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
             }
 
             function draw(e) {
-                console.log(viewportTransform.x, viewportTransform.y, viewportTransform.scale)
-                var tempColor = pencilColor;
-                if(tools[pencil] || tools[eraser]){
+                for(var i = 0; i < widthNum; i++){
+                    if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
+                    e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
+                    pixelSize*0.95*viewportTransform.scale){
+                        for(var j = 0; j < heightNum; j++){
+                            if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
+                            e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
+                            pixelSize*0.95*viewportTransform.scale){
+                                pixels[i][j].color = pencilColor;
+                                pixels[i][j].empty = false;
+                                drawPixel(pixels[i][j]);
+                                console.log(pixels[i][j]);
+                            }
+                        }
 
-                    if(tools[eraser]){
-                        pencilColor = backgroundColor;
+                        break;
                     }
-                    for(var i = 0; i < widthNum; i++){
-                        if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
-                        e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
-                        pixelSize*0.95*viewportTransform.scale){
-                            break;
-                        }
-                    }
-                    for(var j = 0; j < heightNum; j++){
-                        if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
-                        e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
-                        pixelSize*0.95*viewportTransform.scale){
-                            pixels[i][j].color = pencilColor;
-                            drawPixel(pixels[i][j]);
-                            console.log(pixels[i][j]);
-                        }
-                    }
-                    pencilColor = tempColor;
                 }
                 
             }
+                
+            function erase(e){
+                for(var i = 0; i < widthNum; i++){
+                    if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
+                    e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
+                    pixelSize*0.95*viewportTransform.scale){
+                        for(var j = 0; j < heightNum; j++){
+                            if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
+                            e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
+                            pixelSize*0.95*viewportTransform.scale){
+                                pixels[i][j].color = backgroundColor;
+                                pixels[i][j].empty = true;
+                                drawPixel(pixels[i][j]);
+                                console.log(pixels[i][j]);
+                            }
+                        }
 
-            //event listeners for pan and zoom
-            canvas.addEventListener("mousedown", (e) => {
-                previousX = e.clientX;
-                previousY = e.clientY;
-
-                canvas.addEventListener("mousemove", onMouseMove);
-            })
-
-            canvas.addEventListener("mouseup", (e) => {
-                canvas.removeEventListener("mousemove", onMouseMove);
-            })
-
-            canvas.addEventListener("wheel", onMouseWheel, {passive: false});
-
-            function fitToBox(){
-                viewportTransform.x = 0;
-                viewportTransform.y = 0;
-                viewportTransform.scale = 1;
-                render();
-            }
-
-            function clearCanvas(){
-                for(let i = 0; i < widthNum; i++){
-                    for(let j = 0; j < heightNum; j++){
-                        pixels[i][j].color = backgroundColor;
+                        break;
                     }
                 }
-                render();
+            }
+           
+            function fill(e){
+                var x = -1;
+                var y = -1;
+
+                //find pixel clicked
+                for(var i = 0; i < widthNum; i++){
+                    if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
+                    e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
+                    pixelSize*0.95*viewportTransform.scale){
+                        for(var j = 0; j < heightNum; j++){
+                            if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
+                            e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
+                            pixelSize*0.95*viewportTransform.scale){
+                                x = i;
+                                y = j;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                fillHelper(x, y)
+
+            }
+            function fillHelper(x, y){
+                
+                //fill selected pixels
+                const tempColor = pixels[x][y].color;
+
+                pixels[x][y].color = pencilColor;
+                pixels[x][y].empty = false;
+                drawPixel(pixels[x][y])
+
+                //check left and right (on canvas)
+                if(x - 1 >= 0 && pixels[x-1][y].color == tempColor){
+                    fillHelper(x-1, y);
+                }
+                if(x + 1 < widthNum && pixels[x+1][y].color == tempColor){
+                    fillHelper(x+1, y);
+                }
+
+                //check up and down (on canvas)
+                if(y - 1 >= 0 && pixels[x][y-1].color == tempColor){
+                    fillHelper(x, y-1);
+                }
+                if(y + 1 < heightNum && pixels[x][y+1].color == tempColor){
+                    fillHelper(x, y+1);
+                }
+
             }
 
             function render(){
@@ -271,6 +372,23 @@
                 }
             }
 
+            //buttons
+            function fit(){
+                viewportTransform.x = 0;
+                viewportTransform.y = 0;
+                viewportTransform.scale = 1;
+                render();
+            }
+
+            function clearCanvas(){
+                for(let i = 0; i < widthNum; i++){
+                    for(let j = 0; j < heightNum; j++){
+                        pixels[i][j].color = backgroundColor;
+                        pixels[i][j].empty = true;
+                    }
+                }
+                render();
+            }
             function go(){
                 heightNum = document.getElementById("height").value;
                 widthNum = document.getElementById("width").value;
@@ -282,19 +400,38 @@
                 for(let i = 0; i < widthNum; i++){
                     var row = []
                     for(let j = 0; j < heightNum; j++){
-                        row.push(new Pixel(i*pixelSize, j*pixelSize, backgroundColor));
+                        row.push(new Pixel(i*pixelSize, j*pixelSize, backgroundColor, true));
                     }
                     pixels.push(row);
                 }
 
                 render();
             }
-            
+            function download(){
+                var tempX = viewportTransform.x;
+                var tempY = viewportTransform.y
+                var tempScale = viewportTransform.scale;
+
+                fit();
+                let canvasUrl = canvas.toDataURL();
+                const createEl = document.createElement('a');
+                createEl.href = canvasUrl;
+                createEl.download = "picture";
+                createEl.click();
+                createEl.remove();
+
+                viewportTransform.x = tempX;
+                viewportTransform.y = tempY;
+                viewportTransform.scale = tempScale;
+                render();
+            }
             function reset(){
                 document.getElementById("menu").style.display = "block";
                 document.getElementById("main").style.display = "none";
+                fit();
                 pixels = []
             }
+        
         </script>
 
     </body>
