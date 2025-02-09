@@ -2,66 +2,194 @@
 <html>
     <head>
         <title>Pixel Art</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Jersey+20&display=swap" rel="stylesheet">
         <style>
             body {
-                background-color: white;
+                background-color: black;
+                font-family: "Lucida Console", monospace, sans-serif;
+                color: #49cdde;
+            }
+
+            #menu{
+                font-size: 500%;
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                -ms-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+            #heading{
+                font-family: "Jersey 20", serif;
+                font-size: 200%;
+                text-align: center;
+                margin: auto;
+            }
+
+            #panel{
+                text-align: right;
+                margin: auto;
+                line-height: 150%;
+                width: 600px;
+            }
+
+            input[type=number]{
+                appearance: textfield;
+                font-size: 100%;
+                border: none;
+                border-bottom: 5px solid #49cdde;
+                background-color: #202d2e;
+                font-family: "Lucida Console", monospace, sans-serif;
+                color: #49cdde;
+                outline: none;
+            }
+
+            input[type=number]:focus {
+                background-color: #32484a;
+            }
+
+            #go{
+                height: 100px;
+                width: 200px;
+                font-size: 100%;
+                font-family: "Jersey 20", serif;
+                background-color: black;
+                outline: none;
+                border: 5px solid #5900ff;
+                color: #5900ff;
+            }
+
+            #go:hover {
+                background-color: #5900ff;
+                color: black;
+            }
+
+            #go:active{
+                transform: translateY(4px);
+            }
+
+            #buttons{
+                /*background-color: #202d2e;*/
+                margin-right: 10px;
+                
+            }
+            #buttons button{
+                width: 150px;
+                height: 100px;
+                font-size: 200%;
+                margin: 10px;
+                font-family: "Jersey 20", serif;
+                background-color: black;
+                outline: none;
+                border: 5px solid #5900ff;
+                color: #5900ff
+            }
+            #buttons button:hover {
+                background-color: #5900ff;
+                color: black;
+            }
+
+            #buttons button:active{
+                transform: translateY(4px);
+            }
+
+            #main{
+                display: flex;
+                flex-wrap: nowrap;
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                -ms-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+                text-align: center;
             }
 
             #canvas {
-                border: 1px solid #000000;
+                margin: auto;
+                border: 5px solid #5900ff;
                 background-color: #000000;
             }
 
-            #controls {
-                background-color: white;
+            #tools{
+                /*background-color: #202d2e;*/
             }
-
+            #tools button{
+                width: 150px;
+                height: 100px;
+                font-size: 200%;
+                margin: 10px;
+                font-family: "Jersey 20", serif;
+                background-color: black;
+                outline: none;
+                border: 5px solid #5900ff;
+                color: #5900ff
+            }
+            #tools button:hover {
+                background-color: #5900ff;
+                color: black;
+            }
+            #tools button:active{
+                transform: translateY(4px);
+            }
+            #tools button.selected {
+                background-color: #5900ff;
+                color: black;
+            }
+            #tools button.unselected {
+                background-color: black;
+                color: #5900ff;
+            }
         </style>
     </head>
     <body>
         <div id = "menu">
-            <label for="height">Height (between 1 and 250):</label>
-            <input type="number" id="height" name="height" min="1" max="250" step = "1">
-            <br>
-
-            <label for="height">Width (between 1 and 250):</label>
-            <input type="number" id="width" name="width" min="1" max="250" step = "1">
-            <br>
+            <p id = "heading">CANVAS SETTINGS</p>
+            <div id = "panel">
+                <label for="height">HEIGHT:</label>
+                <input type="number" id="height" name="height" min="1" max="250" step = "1">
+                <br>
+    
+                <label for="height">WIDTH:</label>
+                <input type="number" id="width" name="width" min="1" max="250" step = "1">
+                <br>
+            </div>
             
-            <button onclick="go()">Go!</button>
+            
+            <button onclick="go()" id = "go">GO</button>
         </div>
         <div id = "main" style = "display: none;">
-            <div id = "controls">
-                <label for = "pencilColor">Pencil Color</label>
-                <input type="color" id="pencilColor" name="pencilColor" value="#FF00FF" onchange="handlePencil()">
-                <br>
-
-                <label for = "backgroundColor">Background Color</label>
-                <input type="color" id="backgroundColor" name="backgroundColor" value="#EEEEEE" onchange="handleBackground()">
-                <br>
-                <button onclick="fit()">Fit</button>
-                <button onclick="clearCanvas()">Clear</button>
-                <button onclick="reset()">Reset</button>
-                <button onclick="download()">Download</button>
-                
-                <br>
-                <input type="radio" id="Pencil" name="tool" value="Pencil" onclick="selectTool('pencil')">
-                <label for="Pencil">Pencil</label>
-                <br>
-                <input type="radio" id="Eraser" name="tool" value="Eraser" onclick="selectTool('erase')">
-                <label for="Eraser">Eraser</label>
-                <br>
-                <input type="radio" id="Fill" name="tool" value="Fill" onclick="selectTool('fill')">
-                <label for="Fill">Fill</label>
-                <br>
-                <input type="radio" id="Pan" name="tool" value="Pan" onclick="selectTool('pan')">
-                <label for="Pan">Pan</label>
-                <br>
-                
-                
+            <div id = "buttons">
+                <button onclick="fit()">FIT</button><br>
+                <button onclick="clearCanvas()">CLEAR</button><br>
+                <button onclick="reset()">RESET</button><br>
+                <button onclick="download()">DOWNLOAD</button><br>
+                <button onclick="undo()">UNDO</button>  
             </div>
-            <br>
-            <canvas id = "canvas" width="750" height="750"></canvas>
+
+            <div><canvas id = "canvas" width="750" height="750"></canvas></div>
+            
+            <div id = "tools"> 
+                <button id="Pencil" class = "unselected" onclick="selectTool('pencil')">PENCIL</button><br>
+                <button id="Eraser" class = "unselected" onclick="selectTool('erase')">ERASER</button><br>
+                <button id="Fill" class = "unselected" onclick="selectTool('fill')">FILL</button><br>
+                <button id="Pan" class = "unselected" onclick="selectTool('pan')">PAN</button><br>
+
+                <input type="color" id="pencilColor" name="pencilColor" value="#FF00FF" onchange="handlePencil()">
+                <label for = "pencilColor">Pencil Color</label>
+                <br>
+                <input type="color" id="backgroundColor" name="backgroundColor" value="#EEEEEE" onchange="handleBackground()">
+                <label for = "backgroundColor">Background Color</label><br>
+
+                <input type = "checkbox" id="toggleLines" name="toggleLines" onclick="toggleLines()">
+                <label for = "toggleLines">Toggle Lines</label><br>
+                <input type = "checkbox" id="toggleTransparency" name="toggleTransparency" onclick="toggleTransparency()">
+                <label for = "toggleTransparency">Toggle Transparency</label><br>
+            </div>
         </div>
        
         <script>
@@ -70,6 +198,7 @@
             var widthNum = document.getElementById("width").value = 5;
             var pixelSize = 750/Math.max(heightNum, widthNum);
             var pixels = []
+            var pixelsPrevious = []
 
             function Pixel(x, y, color, empty){
                 this.x = x;
@@ -92,10 +221,8 @@
                 pencilColor = document.getElementById("pencilColor").value;
             }
 
-            //TODO:
-            //implement fill tool - recursive
-            //implement warning message for reset and clear
-            //implement undo redo
+            //TODO:todggle poutlines on/off
+            //transparent bg?
             var mouseDownArr = []
             var mouseUpArr = []
             function selectTool(tool){
@@ -105,6 +232,11 @@
                 mouseDownArr = []
                 mouseUpArr = []
                 
+                var s = document.getElementsByClassName("selected");
+                if(s.length > 0){
+                    s[0].setAttribute("class", "unselected");
+                }
+
                 //add correct event listeners
                 if(tool == "pencil"){
                     canvas.addEventListener("mousedown", handleDrawStart);
@@ -112,11 +244,15 @@
                     mouseDownArr.push(handleDrawStart);
                     mouseUpArr.push(handleDrawEnd);
 
+                    document.getElementById("Pencil").setAttribute("class", "selected");
+
                 } else if (tool == "erase"){
                     canvas.addEventListener("mousedown", handleEraseStart);
                     canvas.addEventListener("mouseup", handleEraseEnd);
                     mouseDownArr.push(handleEraseStart);
                     mouseUpArr.push(handleEraseEnd);
+
+                    document.getElementById("Eraser").setAttribute("class", "selected");
 
                 } else if (tool == "fill"){
                     canvas.addEventListener("mousedown", handleFillStart);
@@ -124,11 +260,15 @@
                     mouseDownArr.push(handleFillStart);
                     mouseUpArr.push(handleFillEnd);
 
+                    document.getElementById("Fill").setAttribute("class", "selected");
+
                 } else if (tool == "pan"){
                     canvas.addEventListener("mousedown", handlePanStart)
                     canvas.addEventListener("mouseup", handlePanEnd)
                     mouseDownArr.push(handlePanStart);
                     mouseUpArr.push(handlePanEnd);
+
+                    document.getElementById("Pan").setAttribute("class", "selected");
 
                 }
             }
@@ -219,8 +359,9 @@
             }
             canvas.addEventListener("wheel", onMouseWheel, {passive: false});
             
-            //event handlers for draw, erase, pan
+            //event handlers for draw, erase, fill, pan
             function handleDrawStart(e){
+                pixelsPrevious = structuredClone(pixels);
                 draw(e);
                 canvas.addEventListener("mousemove", draw);
             }
@@ -228,6 +369,7 @@
                 canvas.removeEventListener("mousemove", draw);
             }
             function handleEraseStart(e){
+                pixelsPrevious = structuredClone(pixels);
                 erase(e);
                 canvas.addEventListener("mousemove", erase);
             }
@@ -235,6 +377,7 @@
                 canvas.removeEventListener("mousemove", erase);
             }
             function handleFillStart(e){
+                pixelsPrevious = structuredClone(pixels);
                 fill(e);
                 canvas.addEventListener("mousemove", fill);
             }
@@ -256,6 +399,7 @@
                     ctx.fillStyle = backgroundColor
                 } else {
                     ctx.fillStyle = pixel.color
+                    
                 }
                 ctx.clearRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
                 ctx.fillRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
@@ -304,6 +448,7 @@
                 }
             }
            
+            var fillArr = []
             function fill(e){
                 var x = -1;
                 var y = -1;
@@ -324,35 +469,48 @@
                         break;
                     }
                 }
-
-                fillHelper(x, y)
+                if(x >= 0 && y >= 0){
+                    //keep track of dept of recursion, restart if necessary
+                    fillArr = [new pairForFill(x, y)]
+                    //for(var i = 0; i < widthNum*heightNum; i++){
+                    while(fillArr.length > 0){
+                        var p = fillArr.pop()
+                        fillHelper(p.x, p.y)                     
+                    }
+                }
 
             }
-            function fillHelper(x, y){
+
+            function pairForFill(x, y){
+                this.x = x
+                this.y = y
+            }
+
+            function fillHelper(x, y){  
+                if(pixels[x][y].color != pencilColor){
+                    //fill pixels[x][y]
+                    const tempColor = pixels[x][y].color;
+                    pixels[x][y].color = pencilColor;
+                    pixels[x][y].empty = false;
+                    drawPixel(pixels[x][y]);
+
+                    //check left and right (on canvas)
+                    if(x - 1 >= 0 && pixels[x-1][y].color == tempColor){
+                        fillArr.push(new pairForFill(x-1, y));
+                    }
+                    if(x + 1 < widthNum && pixels[x+1][y].color == tempColor){
+                        fillArr.push(new pairForFill(x+1, y));
+                    }
+
+                    //check up and down (on canvas)
+                    if(y - 1 >= 0 && pixels[x][y-1].color == tempColor){
+                        fillArr.push(new pairForFill(x, y-1));
+                    }
+                    if(y + 1 < heightNum && pixels[x][y+1].color == tempColor){
+                        fillArr.push(new pairForFill(x, y+1));
+                    }
+                }
                 
-                //fill selected pixels
-                const tempColor = pixels[x][y].color;
-
-                pixels[x][y].color = pencilColor;
-                pixels[x][y].empty = false;
-                drawPixel(pixels[x][y])
-
-                //check left and right (on canvas)
-                if(x - 1 >= 0 && pixels[x-1][y].color == tempColor){
-                    fillHelper(x-1, y);
-                }
-                if(x + 1 < widthNum && pixels[x+1][y].color == tempColor){
-                    fillHelper(x+1, y);
-                }
-
-                //check up and down (on canvas)
-                if(y - 1 >= 0 && pixels[x][y-1].color == tempColor){
-                    fillHelper(x, y-1);
-                }
-                if(y + 1 < heightNum && pixels[x][y+1].color == tempColor){
-                    fillHelper(x, y+1);
-                }
-
             }
 
             function render(){
@@ -381,13 +539,16 @@
             }
 
             function clearCanvas(){
-                for(let i = 0; i < widthNum; i++){
-                    for(let j = 0; j < heightNum; j++){
-                        pixels[i][j].color = backgroundColor;
-                        pixels[i][j].empty = true;
+                if (confirm("Are you sure? This will clear the canvas.")) {
+                    for(let i = 0; i < widthNum; i++){
+                        for(let j = 0; j < heightNum; j++){
+                            pixels[i][j].color = backgroundColor;
+                            pixels[i][j].empty = true;
+                        }
                     }
+                    render();
                 }
-                render();
+                
             }
             function go(){
                 heightNum = document.getElementById("height").value;
@@ -395,7 +556,7 @@
                 pixelSize = 750/Math.max(heightNum, widthNum);
 
                 document.getElementById("menu").style.display = "none";
-                document.getElementById("main").style.display = "block";
+                document.getElementById("main").style.display = "flex";
 
                 for(let i = 0; i < widthNum; i++){
                     var row = []
@@ -404,6 +565,7 @@
                     }
                     pixels.push(row);
                 }
+                pixelsPrevious = structuredClone(pixels);
 
                 render();
             }
@@ -426,12 +588,22 @@
                 render();
             }
             function reset(){
-                document.getElementById("menu").style.display = "block";
-                document.getElementById("main").style.display = "none";
-                fit();
-                pixels = []
+                if (confirm("Are you sure? This will reset the canvas.")) {
+                    document.getElementById("menu").style.display = "block";
+                    document.getElementById("main").style.display = "none";
+                    fit();
+                    pixels = []
+                }
+                
             }
-        
+            function undo(){
+                console.log("undo")
+                var tempPixels = pixels;
+                pixels = pixelsPrevious;
+                render()
+                pixelsPrevious = tempPixels;
+                
+            }
         </script>
 
     </body>
