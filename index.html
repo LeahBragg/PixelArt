@@ -9,7 +9,7 @@
             body {
                 background-color: black;
                 font-family: "Lucida Console", monospace, sans-serif;
-                color: #49cdde;
+                color: #5900ff;
             }
 
             #menu{
@@ -41,15 +41,15 @@
                 appearance: textfield;
                 font-size: 100%;
                 border: none;
-                border-bottom: 5px solid #49cdde;
-                background-color: #202d2e;
+                border-bottom: 5px solid #5900ff;
+                background-color: #2d233f;
                 font-family: "Lucida Console", monospace, sans-serif;
-                color: #49cdde;
+                color: #5900ff;
                 outline: none;
             }
 
             input[type=number]:focus {
-                background-color: #32484a;
+                background-color: #2d233f;
             }
 
             #go{
@@ -72,6 +72,11 @@
                 transform: translateY(4px);
             }
 
+            #main{
+                display: flex;
+                margin-top: 50px;
+            }
+
             #buttons{
                 /*background-color: #202d2e;*/
                 margin-right: 10px;
@@ -79,8 +84,7 @@
             }
             #buttons button{
                 width: 150px;
-                height: 100px;
-                font-size: 200%;
+                height: 90px;
                 margin: 10px;
                 font-family: "Jersey 20", serif;
                 background-color: black;
@@ -88,25 +92,64 @@
                 border: 5px solid #5900ff;
                 color: #5900ff
             }
-            #buttons button:hover {
+            #buttons button:not(#toggleTransparency){
+                font-size: 200%;
+            }
+            #toggleLines:hover {
                 background-color: #5900ff;
                 color: black;
+            }
+            #toggleLines.selected{
+                background-color: #5900ff;
+                color: black;
+            }
+
+            #toggleTransparency{
+                font-size: 140%;
+            }
+            #toggleTransparency:hover {
+                background-color: #5900ff;
+                color: black;
+            }
+            #toggleTransparency.selected{
+                background-color: #5900ff;
+                color: black;
+            }
+            
+            #buttons button:hover:not(#toggleTransparency, #toggleLines) {
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-color: #5900ff;
+                font-size: 0;
+            }
+            #Fit:hover{
+                background-image: url(fitBlack.png);
+                background-position: 25px 0;
+            }
+            #Clear:hover{
+                background-image: url(clearBlack.png);
+                background-position: 20px 0;
+            }
+            #Reset:hover{
+                background-image: url(resetBlack.png);
+                background-position: 25px 0;
+            }
+            #Download:hover{
+                background-image: url(downloadBlack.png);
+                background-position: 42px 0;
+            }
+            #Undo:hover{
+                background-image: url(undoBlack.png);
+                background-position: 25px 10px;
             }
 
             #buttons button:active{
                 transform: translateY(4px);
             }
 
-            #main{
-                display: flex;
-                flex-wrap: nowrap;
-                margin: 0;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                -ms-transform: translate(-50%, -50%);
-                transform: translate(-50%, -50%);
-                text-align: center;
+            .selected {
+                background-color: #5900ff;
+                color: black;
             }
 
             #canvas {
@@ -116,7 +159,9 @@
             }
 
             #tools{
-                /*background-color: #202d2e;*/
+                margin: 10px;
+                width: 200px;
+                
             }
             #tools button{
                 width: 150px;
@@ -129,21 +174,80 @@
                 border: 5px solid #5900ff;
                 color: #5900ff
             }
-            #tools button:hover {
-                background-color: #5900ff;
-                color: black;
-            }
-            #tools button:active{
-                transform: translateY(4px);
-            }
             #tools button.selected {
+                background-size: contain;
+                background-repeat: no-repeat;
                 background-color: #5900ff;
-                color: black;
+                font-size: 0;
             }
             #tools button.unselected {
                 background-color: black;
                 color: #5900ff;
             }
+            #tools button:hover {
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-color: #5900ff;
+                font-size: 0;
+            }
+            #tools button:active{
+                transform: translateY(4px);
+            }
+            #Pencil:hover{
+                background-image: url(pencilBlack.png);
+                background-position: 25px 0;
+            }
+            #Eraser:hover{
+                background-image: url(eraserBlack.png);
+                background-position: 20px 0;
+            }
+            #Fill:hover{
+                background-image: url(fillBlack.png);
+                background-position: 25px 0;
+            }
+            #Pan:hover{
+                background-image: url(panBlack.png);
+                background-position: 25px 0;
+            }
+            #Pencil.selected{
+                background-image: url(pencilBlack.png);
+                background-position: 25px 0;
+            }
+            #Eraser.selected{
+                background-image: url(eraserBlack.png);
+                background-position: 20px 0;
+            }
+            #Fill.selected{
+                background-image: url(fillBlack.png);
+                background-position: 25px 0;
+            }
+            #Pan.selected{
+                background-image: url(panBlack.png);
+                background-position: 25px 0;
+            }
+
+            #pencilColor{
+                width: 90px;
+                height: 100px;
+                border: none;
+                margin-left: 10px;
+            }
+            #backgroundColor{
+                width: 90px;
+                height: 130px;
+                border: none;
+                margin-left: 10px;
+            }
+
+            #tools label{
+                font-family: "Jersey 20", serif;
+                color: #5900ff;
+                font-size: 25px;
+                text-orientation: mixed;
+                writing-mode: vertical-lr;
+                text-align: center;
+            }
+
         </style>
     </head>
     <body>
@@ -164,11 +268,15 @@
         </div>
         <div id = "main" style = "display: none;">
             <div id = "buttons">
-                <button onclick="fit()">FIT</button><br>
-                <button onclick="clearCanvas()">CLEAR</button><br>
-                <button onclick="reset()">RESET</button><br>
-                <button onclick="download()">DOWNLOAD</button><br>
-                <button onclick="undo()">UNDO</button>  
+                <button id="Fit" onclick="fit()">FIT</button><br>
+                <button id="Clear" onclick="clearCanvas()">CLEAR</button><br>
+                <button id="Reset" onclick="reset()">RESET</button><br>
+                <button id="Download" onclick="download()">DOWNLOAD</button><br>
+                <button id="Undo" onclick="undo()">UNDO</button><br>
+
+                <button id="toggleLines" onclick="toggleLines()" class = "unselected">TOGGLE LINES</button><br>
+                <button id="toggleTransparency" onclick="toggleTransparency()" class = "unselected">TOGGLE TRANSPARENCY</button><br>
+
             </div>
 
             <div><canvas id = "canvas" width="750" height="750"></canvas></div>
@@ -178,17 +286,11 @@
                 <button id="Eraser" class = "unselected" onclick="selectTool('erase')">ERASER</button><br>
                 <button id="Fill" class = "unselected" onclick="selectTool('fill')">FILL</button><br>
                 <button id="Pan" class = "unselected" onclick="selectTool('pan')">PAN</button><br>
-
-                <input type="color" id="pencilColor" name="pencilColor" value="#FF00FF" onchange="handlePencil()">
-                <label for = "pencilColor">Pencil Color</label>
                 <br>
+                <input type="color" id="pencilColor" name="pencilColor" value="#FF00FF" onchange="handlePencil()">
+                <label for = "pencilColor">PENCIL</label>
                 <input type="color" id="backgroundColor" name="backgroundColor" value="#EEEEEE" onchange="handleBackground()">
-                <label for = "backgroundColor">Background Color</label><br>
-
-                <input type = "checkbox" id="toggleLines" name="toggleLines" onclick="toggleLines()">
-                <label for = "toggleLines">Toggle Lines</label><br>
-                <input type = "checkbox" id="toggleTransparency" name="toggleTransparency" onclick="toggleTransparency()">
-                <label for = "toggleTransparency">Toggle Transparency</label><br>
+                <label for = "backgroundColor">BACKGROUND</label><br>
             </div>
         </div>
        
@@ -197,6 +299,7 @@
             var heightNum = document.getElementById("height").value = 5;
             var widthNum = document.getElementById("width").value = 5;
             var pixelSize = 750/Math.max(heightNum, widthNum);
+            var pixelSizeModifier = 0.95;
             var pixels = []
             var pixelsPrevious = []
 
@@ -397,23 +500,29 @@
             function drawPixel(pixel) {
                 if(pixel.empty){
                     ctx.fillStyle = backgroundColor
+                    if(transparent){
+                        ctx.globalAlpha = 0;
+                    } else {
+                        ctx.globalAlpha = 1;
+                    }
                 } else {
                     ctx.fillStyle = pixel.color
                     
                 }
-                ctx.clearRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
-                ctx.fillRect(pixel.x, pixel.y, pixelSize*0.95, pixelSize*0.95)
+                ctx.clearRect(pixel.x, pixel.y, pixelSize*pixelSizeModifier, pixelSize*pixelSizeModifier)
+                ctx.fillRect(pixel.x, pixel.y, pixelSize*pixelSizeModifier, pixelSize*pixelSizeModifier)
+                ctx.globalAlpha = 1;
             }
 
             function draw(e) {
                 for(var i = 0; i < widthNum; i++){
                     if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
                     e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
-                    pixelSize*0.95*viewportTransform.scale){
+                    pixelSize*pixelSizeModifier*viewportTransform.scale){
                         for(var j = 0; j < heightNum; j++){
                             if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
                             e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
-                            pixelSize*0.95*viewportTransform.scale){
+                            pixelSize*pixelSizeModifier*viewportTransform.scale){
                                 pixels[i][j].color = pencilColor;
                                 pixels[i][j].empty = false;
                                 drawPixel(pixels[i][j]);
@@ -431,11 +540,11 @@
                 for(var i = 0; i < widthNum; i++){
                     if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
                     e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
-                    pixelSize*0.95*viewportTransform.scale){
+                    pixelSize*pixelSizeModifier*viewportTransform.scale){
                         for(var j = 0; j < heightNum; j++){
                             if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
                             e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
-                            pixelSize*0.95*viewportTransform.scale){
+                            pixelSize*pixelSizeModifier*viewportTransform.scale){
                                 pixels[i][j].color = backgroundColor;
                                 pixels[i][j].empty = true;
                                 drawPixel(pixels[i][j]);
@@ -457,11 +566,11 @@
                 for(var i = 0; i < widthNum; i++){
                     if(e.offsetX >= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x && 
                     e.offsetX <= (pixels[i][0].x)*viewportTransform.scale + viewportTransform.x + 
-                    pixelSize*0.95*viewportTransform.scale){
+                    pixelSize*pixelSizeModifier*viewportTransform.scale){
                         for(var j = 0; j < heightNum; j++){
                             if(e.offsetY >= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y && 
                             e.offsetY <= (pixels[i][j].y)*viewportTransform.scale + viewportTransform.y + 
-                            pixelSize*0.95*viewportTransform.scale){
+                            pixelSize*pixelSizeModifier*viewportTransform.scale){
                                 x = i;
                                 y = j;
                             }
@@ -517,10 +626,6 @@
                 ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.setTransform(viewportTransform.scale, 0, 0, viewportTransform.scale, viewportTransform.x, viewportTransform.y);
-
-                //background
-                ctx.fillStyle = "black";
-                ctx.fillRect(0, 0, 750, 750, "black");
                 
                 //render grid
                 for(var i = 0; i < widthNum; i++){
@@ -567,6 +672,32 @@
                 }
                 pixelsPrevious = structuredClone(pixels);
 
+                render();
+            }
+            var lines = true;
+            var transparent = false;
+            function toggleLines(){
+                lines = !lines;
+                if(!lines){
+                    pixelSizeModifier = 1;
+                } else {
+                    pixelSizeModifier = 0.95;
+                }
+                if(document.getElementById("toggleLines").className == "unselected"){
+                    document.getElementById("toggleLines").className = "selected"
+                } else {
+                    document.getElementById("toggleLines").className = "unselected"
+                }
+                console.log(document.getElementById("toggleLines").className)
+                render();
+            }
+            function toggleTransparency(){
+                transparent = !transparent;
+                if(document.getElementById("toggleTransparency").className == "unselected"){
+                    document.getElementById("toggleTransparency").className = "selected"
+                } else {
+                    document.getElementById("toggleTransparency").className = "unselected"
+                }
                 render();
             }
             function download(){
